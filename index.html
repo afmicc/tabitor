@@ -1,0 +1,135 @@
+<html>
+  <head>
+      <style>
+      body {
+        font-family: monospace
+      }
+      </style>
+    <title>notepad</title>
+    <link rel="icon" href="http://www.iconarchive.com/download/i80229/custom-icon-design/flatastic-1/edit.ico">
+  </head>
+
+  <body contenteditable onload="handleOpened()" />
+
+  <script type="application/javascript">
+    const KEY_CODE_S = 83
+    const STORE_PREFIX = 'html_notepad_'
+    const TMP_STORE_PREFIX = `tmp-${STORE_PREFIX}`
+    const AVAILABLE_PREFIXES = [STORE_PREFIX, TMP_STORE_PREFIX]
+    const body = document.querySelector('body')
+    let storageKey = `${TMP_STORE_PREFIX}${new Date().toLocaleDateString('en-gb', { year: "2-digit", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" }).replace(', ', '-')}`
+
+    /**
+     * -------- Actions --------
+     */
+
+    const print = messages => {
+      const commands = {
+        separator: '--------',
+        break: '\n',
+      }
+
+      const toValue = entry => {
+        if (typeof entry === 'string') return entry
+        if (typeof entry === 'object') {
+          const keys = Object.keys(entry)
+          return commands[keys && keys[0]]
+        }
+      }
+
+      const arr = messages.reduce((accum, message) => [...accum, toValue(message), commands.break], [])
+      console.log(...arr)
+    }
+
+    const saveContent = () => {
+      if (!storageKey) return
+
+      const content = body.innerText
+      window.localStorage.setItem(storageKey, content)
+    }
+
+    const removeContent = key => key && window.localStorage.removeItem(key)
+
+    const restore = key => {
+      if (!key) return
+
+      const content = window.localStorage.getItem(key)
+      body.innerText = content
+      storageKey = key
+    }
+
+    const getKeysByPrefix = prefix => {
+      if (!prefix || !AVAILABLE_PREFIXES.includes(prefix)) return
+
+      return Object.keys(window.localStorage).filter(x => x.startsWith(prefix))
+    }
+
+    const temps = () => {
+      const keys = getKeysByPrefix(TMP_STORE_PREFIX)
+      if (!keys || !keys.length) return print([{ break: true }, 'Not available temp keys',])
+
+      print([
+        'available tmps:',
+        { separator: true },
+        { break: true },
+        ...keys.map(key => key.replace(TMP_STORE_PREFIX, '')),
+        { break: true },
+        { separator: true },
+        { break: true },
+        'To restore one of the previous keys, type on console `restore(\'<key>\')`',
+        '  eg: restore(\'todo-list\')',
+        { break: true },
+      ])
+    }
+
+    /**
+     * -------- Event Handling --------
+     */
+
+    const handleSaveAction = e => {
+      evt = e || window.event;
+      if ((evt.metaKey || evt.ctrlKey) && evt.keyCode === KEY_CODE_S) {
+        evt.preventDefault()
+      } else {
+        return
+      }
+
+      if (!storageKey || storageKey.startsWith(TMP_STORE_PREFIX)) {
+        const newKey = prompt('key name?')
+        removeContent(storageKey)
+        storageKey = `${STORE_PREFIX}${newKey}`
+      }
+      if (!storageKey) return
+
+      saveContent()
+    }
+
+    const handleTextChange = _event => saveContent()
+
+    const handleOpened = () => {
+      const keys = getKeysByPrefix(STORE_PREFIX)
+      if (!keys || !keys.length) return
+
+      let message = 'open? \n'
+      keys.forEach(key => { message += `${key.replace(STORE_PREFIX, '')}\n`})
+      const key = prompt(message)
+
+      if (!key) return
+      const restoredKey = `${STORE_PREFIX}${key}`
+      restore(restoredKey)
+    }
+
+    /**
+     * -------- Events --------
+     */
+
+    document.onkeydown = handleSaveAction
+    body.addEventListener('input', handleTextChange, false)
+
+    /**
+     * -------- Instructions --------
+     */
+
+     console.log('To restore unsaved files type on console \`temps()\` to list available keys')
+  </script>
+</html>
