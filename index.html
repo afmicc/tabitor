@@ -50,7 +50,7 @@
 
     const removeContent = key => key && window.localStorage.removeItem(key)
 
-    const restore = key => {
+    const restoreContent = key => {
       if (!key) return
 
       const content = window.localStorage.getItem(key)
@@ -82,6 +82,11 @@
       ])
     }
 
+    const restore = key => {
+      const restoredKey = `${TMP_STORE_PREFIX}${key}`
+      restoreContent(restoredKey)
+    }
+    
     /**
      * -------- Event Handling --------
      */
@@ -116,7 +121,7 @@
 
       if (!key) return
       const restoredKey = `${STORE_PREFIX}${key}`
-      restore(restoredKey)
+      restoreContent(restoredKey)
     }
 
     /**
