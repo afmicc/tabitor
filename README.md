@@ -1,5 +1,5 @@
 <div align="center">
-  <a href="https://tabitor.herokuapp.com/">
+  <a href="https://afmicc.github.io/tabitor/">
     <img src="http://www.iconarchive.com/download/i80229/custom-icon-design/flatastic-1/edit.ico" alt="Logo" width="80" height="80">
   </a>
 
@@ -10,7 +10,7 @@
     <br />
     <br />
      ·
-    <a href="https://tabitor.herokuapp.com/" target="_blank">Open app</a>
+    <a href="https://afmicc.github.io/tabitor/" target="_blank">Open app</a>
      ·
   </p>
 </div>
